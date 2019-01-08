@@ -9,13 +9,22 @@ main() {
   (( terminal_width=$(tput cols) ))
   (( terminal_height=$(tput lines) ))
   (( left_border="$terminal_width"/3 ))
-  upper_border=5
+  upper_border=1
 
   local upper_arm=()
-  draw_upper_arm
+  create_upper_arm
 
   local left_arm=()
-  draw_left_arm
+  create_left_arm
+
+  local lower_left_arm=()
+  create_lower_left_arm
+
+  local lower_right_arm=()
+  create_lower_right_arm
+
+  local right_arm=()
+  create_right_arm
 
   # printArr upper_arm
 
@@ -24,12 +33,18 @@ main() {
   tput dim
   tput setaf 2; tput bold
   canvas_draw m "${upper_arm[@]}"
-  tput sgr0
-  tput setaf 3
+  tput setaf 3;
   canvas_draw m "${left_arm[@]}"
+  tput setaf 4;
+  canvas_draw m "${lower_left_arm[@]}"
+  tput setaf 5;
+  canvas_draw m "${lower_right_arm[@]}"
+  tput setaf 6;
+  canvas_draw m "${right_arm[@]}"
+  tput cup 40 0
 }
 
-draw_upper_arm() {
+create_upper_arm() {
   put_line upper_arm 2,24 2,28
   put_line upper_arm 3,22 3,30
   put_line upper_arm 4,21 4,31
@@ -41,7 +56,7 @@ draw_upper_arm() {
   upper_arm+=(10,24 10,28)
 }
 
-draw_left_arm() {
+create_left_arm() {
   put_line left_arm 9,4 9,15
   put_line left_arm 10,3 10,15
   put_line left_arm 11,2 11,16
@@ -49,6 +64,39 @@ draw_left_arm() {
   put_line left_arm 13,5 13,16
   put_line left_arm 14,7 14,13
   put_line left_arm 15,9 15,11
+  left_arm+=( 16,11 )
+}
+
+create_lower_left_arm() {
+  put_line lower_left_arm 18,12 18,19
+  put_line lower_left_arm 19,11 19,21
+  put_line lower_left_arm 20,11 20,21
+  put_line lower_left_arm 21,11 20,23
+  put_line lower_left_arm 22,10 22,24
+  put_line lower_left_arm 23,10 23,20
+  put_line lower_left_arm 24,11 24,16
+
+}
+
+create_lower_right_arm(){
+  put_line lower_right_arm 18,33 18,40
+  put_line lower_right_arm 19,31 19,41
+  put_line lower_right_arm 20,31 20,41
+  put_line lower_right_arm 21,29 21,41
+  put_line lower_right_arm 22,28 22,42
+  put_line lower_right_arm 23,32 23,42
+  put_line lower_right_arm 24,36 23,41
+}
+
+create_right_arm() {
+  put_line right_arm 9,37 9,48
+  put_line right_arm 10,37 10,49
+  put_line right_arm 11,36 11,50
+  put_line right_arm 12,34 12,49
+  put_line right_arm 13,36 13,47
+  put_line right_arm 14,39 14,45
+  put_line right_arm 15,41 15,43
+  right_arm+=( 16,41 )
 }
 
 printArr() {
