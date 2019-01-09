@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 main() {
-  local surroundings=()
-  coords_from_file surroundings template.ascii @
   
   local terminal_width
   local terminal_height
@@ -15,28 +13,38 @@ main() {
   upper_border=1
 
   local upper_arm=()
-  create_upper_arm
+  coords_from_file upper_arm star.ascii \*
 
   local left_arm=()
-  create_left_arm
+  coords_from_file left_arm star.ascii /
 
   local lower_left_arm=()
-  create_lower_left_arm
+  coords_from_file lower_left_arm star.ascii \!
 
   local lower_right_arm=()
-  create_lower_right_arm
-
+  coords_from_file lower_right_arm star.ascii \&
+  
   local right_arm=()
-  create_right_arm
+  coords_from_file right_arm star.ascii \(
 
   local upper_left_circle=()
-  create_upper_left_circle
+  coords_from_file upper_left_circle star.ascii @
 
+  local lower_left_circle=()
+  coords_from_file lower_left_circle star.ascii %
+
+  local lower_circle=()
+  coords_from_file lower_circle star.ascii o
+ 
+  local lower_right_circle=()
+  coords_from_file lower_right_circle star.ascii \#
+
+  local upper_right_circle=()
+  coords_from_file upper_right_circle star.ascii x
 
   clear
   tput civis
-  tput dim
-  tput setaf 2; tput bold
+  tput setaf 2;
   canvas_draw m "${upper_arm[@]}"
   tput setaf 3;
   canvas_draw m "${left_arm[@]}"
@@ -47,67 +55,16 @@ main() {
   tput setaf 6;
   canvas_draw m "${right_arm[@]}"
   tput setaf 7;
-  canvas_draw m "${surroundings[@]}"
+  canvas_draw m "${upper_left_circle[@]}"
+  tput setaf 1;
+  canvas_draw m "${lower_left_circle[@]}"
+  tput setaf 2;
+  canvas_draw m "${lower_circle[@]}"
+  tput setaf 4;
+  canvas_draw m "${lower_right_circle[@]}"
+  tput setaf 3;
+  canvas_draw m "${upper_right_circle[@]}"
   tput cup 40 0
-}
-
-create_upper_arm() {
-  put_line upper_arm 2,24 2,28
-  put_line upper_arm 3,22 3,30
-  put_line upper_arm 4,21 4,31
-  put_line upper_arm 5,20 5,32
-  put_line upper_arm 6,19 6,33
-  put_line upper_arm 7,18 7,34
-  put_line upper_arm 8,23 8,29
-  upper_arm+=(9,24 9,25 9,27 9,28)
-  upper_arm+=(10,24 10,28)
-}
-
-create_left_arm() {
-  put_line left_arm 9,4 9,15
-  put_line left_arm 10,3 10,15
-  put_line left_arm 11,2 11,16
-  put_line left_arm 12,3 12,18
-  put_line left_arm 13,5 13,16
-  put_line left_arm 14,7 14,13
-  put_line left_arm 15,9 15,11
-  left_arm+=( 16,11 )
-}
-
-create_lower_left_arm() {
-  put_line lower_left_arm 18,12 18,19
-  put_line lower_left_arm 19,11 19,21
-  put_line lower_left_arm 20,11 20,21
-  put_line lower_left_arm 21,11 20,23
-  put_line lower_left_arm 22,10 22,24
-  put_line lower_left_arm 23,10 23,20
-  put_line lower_left_arm 24,11 24,16
-
-}
-
-create_lower_right_arm(){
-  put_line lower_right_arm 18,33 18,40
-  put_line lower_right_arm 19,31 19,41
-  put_line lower_right_arm 20,31 20,41
-  put_line lower_right_arm 21,29 21,41
-  put_line lower_right_arm 22,28 22,42
-  put_line lower_right_arm 23,32 23,42
-  put_line lower_right_arm 24,36 23,41
-}
-
-create_right_arm() {
-  put_line right_arm 9,37 9,48
-  put_line right_arm 10,37 10,49
-  put_line right_arm 11,36 11,50
-  put_line right_arm 12,34 12,49
-  put_line right_arm 13,36 13,47
-  put_line right_arm 14,39 14,45
-  put_line right_arm 15,41 15,43
-  right_arm+=( 16,41 )
-}
-
-create_upper_left_circle() {
-  put_line right_arm 8,17 8,22
 }
 
 coords_from_file() {
@@ -118,11 +75,12 @@ coords_from_file() {
   local row=0
   for line in "${file_lines[@]}"; do
     for i in $(seq 1 ${#line}); do 
-      local letter=${line:i-1:1}
-      [[ -z $letter ]] && letter=' ' 
-
-      [[ "$letter" != "$character" ]] && continue
-
+      local current_character=${line:i-1:1}
+      if [[ -z $character ]]; then 
+        [[ "$current_character" == ' ' ]] && continue
+      else 
+        [[ "$current_character" != "$character" ]] && continue
+      fi 
       result+=( "$row,$i" )
     done
     (( row++))
@@ -152,6 +110,17 @@ put_line() {
     buffer+=("$start_row,$i")
     ((i++))
   done
+}
+
+# Taken from here: https://unix.stackexchange.com/a/269085
+from_hex(){
+    hex=${1#"#"}
+    r=$(printf '0x%0.2s' "$hex")
+    g=$(printf '0x%0.2s' ${hex#??})
+    b=$(printf '0x%0.2s' ${hex#????})
+    printf '%03d' "$(( (r<75?0:(r-35)/40)*6*6 + 
+                       (g<75?0:(g-35)/40)*6   +
+                       (b<75?0:(b-35)/40)     + 16 ))"
 }
 
 canvas_draw() {
