@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 
 main() {
+  local surroundings=()
+  coords_from_file surroundings template.ascii @
+  
   local terminal_width
   local terminal_height
   local left_border
   local upper_border
-  
+
   (( terminal_width=$(tput cols) ))
   (( terminal_height=$(tput lines) ))
-  (( left_border="$terminal_width"/3 ))
+  (( left_border="$terminal_width"/2 - 30 ))
   upper_border=1
 
   local upper_arm=()
@@ -26,7 +29,9 @@ main() {
   local right_arm=()
   create_right_arm
 
-  # printArr upper_arm
+  local upper_left_circle=()
+  create_upper_left_circle
+
 
   clear
   tput civis
@@ -41,6 +46,8 @@ main() {
   canvas_draw m "${lower_right_arm[@]}"
   tput setaf 6;
   canvas_draw m "${right_arm[@]}"
+  tput setaf 7;
+  canvas_draw m "${surroundings[@]}"
   tput cup 40 0
 }
 
@@ -99,9 +106,32 @@ create_right_arm() {
   right_arm+=( 16,41 )
 }
 
+create_upper_left_circle() {
+  put_line right_arm 8,17 8,22
+}
+
+coords_from_file() {
+  typeset -n result=$1
+  local file=$2
+  local character=$3
+  readarray -t file_lines < "$file"
+  local row=0
+  for line in "${file_lines[@]}"; do
+    for i in $(seq 1 ${#line}); do 
+      local letter=${line:i-1:1}
+      [[ -z $letter ]] && letter=' ' 
+
+      [[ "$letter" != "$character" ]] && continue
+
+      result+=( "$row,$i" )
+    done
+    (( row++))
+  done
+}
+
 printArr() {
-  typeset -n arr=$1
-  for i in "${arr[@]}"
+  typeset -n out=$1
+  for i in "${out[@]}"
   do
     echo "value: $i"
   done
@@ -109,10 +139,9 @@ printArr() {
 
 put_line() {
   local -n buffer=$1
-  start=$2
-  end=$3
-  IFS=',' 
-  read -ra start_coords <<< "$start"
+  local start=$2
+  local end=$3
+  IFS=','; read -ra start_coords <<< "$start"
   read -ra end_coords <<< "$end"
   local start_row=${start_coords[0]}
   local start_column=${start_coords[1]}
