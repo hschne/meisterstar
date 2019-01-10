@@ -18,7 +18,7 @@ curl https://raw.githubusercontent.com/hschne/meisterstar/master/meisterstar.sh 
 ```
 Wget:
 ```
-wget https://raw.githubusercontent.com/hschne/meisterstar/master/meisterstar.sh | bash
+wget -qO- https://raw.githubusercontent.com/hschne/meisterstar/master/meisterstar.sh | bash
 ```
 Git:
 ```
