@@ -1,135 +1,152 @@
 #!/usr/bin/env bash
 
-trap "tput reset; tput cnorm; exit" 2
-
 main() {
-  local terminal_width
-  local left_border
-  local upper_border
-
-  (( terminal_width=$(tput cols) ))
-  (( left_border="$terminal_width"/2 - 30 ))
-  upper_border=2
-
-  local upper_arm=()
-  coords_from_file upper_arm meisterstar.ascii \*
-
-  local left_arm=()
-  coords_from_file left_arm meisterstar.ascii /
-
-  local lower_left_arm=()
-  coords_from_file lower_left_arm meisterstar.ascii \!
-
-  local lower_right_arm=()
-  coords_from_file lower_right_arm meisterstar.ascii \&
-  
-  local right_arm=()
-  coords_from_file right_arm meisterstar.ascii \(
-
-  local upper_left_circle=()
-  coords_from_file upper_left_circle meisterstar.ascii @
-
-  local lower_left_circle=()
-  coords_from_file lower_left_circle meisterstar.ascii %
-
-  local lower_circle=()
-  coords_from_file lower_circle meisterstar.ascii o
- 
-  local lower_right_circle=()
-  coords_from_file lower_right_circle meisterstar.ascii \#
-
-  local upper_right_circle=()
-  coords_from_file upper_right_circle meisterstar.ascii x
+  parse_star_parts
 
   clear
   tput civis
 
-  local writing_start
-  (( writing_start=left_border+22 ))
-  tput cup 28 $writing_start
+  set_borders
 
+  local writing_start
+  (( writing_start=left_border+21 ))
+  tput cup 27 $writing_start
   echo "M E I S T E R"
 
   tput dim
   draw_star
-
   tput sgr0
-
-
-  draw_repeat
+  animate_star
 }
 
-function draw_star() {
+function star() {
+cat << EOF
+                                                   
+                         *****                     
+                       *********                   
+                      ***********                  
+                     *************                 
+                    ***************                
+                   *****************               
+                  @@@@@@*******xxxxxx              
+     ////////////@@@@@@@@** **xxxxxxxx(((((((((((( 
+    /////////////@@@@@@@@*   *xxxxxxxx(((((((((((((
+   ///////////////@@@@@@       xxxxxx((((((((((((((
+    ////////////////               ((((((((((((((((
+      ////////////                   ((((((((((((  
+        //////%%%%%%               #####(((((((    
+          ///%%%%%%%%             ########(((      
+            /%%%%%%%%%           #########(        
+              %%%%%%%             #######          
+             !!!!!!!!  !ooooooo&  &&&&&&&&         
+            !!!!!!!!!!!ooooooooo&&&&&&&&&&&        
+            !!!!!!!!!!!ooooooooo&&&&&&&&&&&        
+            !!!!!!!!!!!!!ooooo&&&&&&&&&&&&&        
+           !!!!!!!!!!!!!!!   &&&&&&&&&&&&&&&       
+           !!!!!!!!!!!           &&&&&&&&&&&       
+            !!!!!!                   &&&&&&     
+
+EOF
+}
+
+set_borders() {
+  (( terminal_width=$(tput cols) ))
+  (( left_border="$terminal_width"/2 - 25 ))
+  upper_border=2
+}
+
+# Parses the contents of 'star' and converts the symbols in there to an array with their coordinates. 
+#
+# Arguments: 
+#  $1 - The array to parse into as nameref
+#  $2 - The character to parse
+#
+# Example: 
+#  parse_star out_array * 
+parse_star() {
+  typeset -n result=$1
+  local character=$2
+  local star
+  star=$(star)
+  local row=0 
+  local col=0
+  for i in $(seq 1 ${#star}); do
+    local current_character=${star:i-1:1}
+    if [[ $current_character == $'\n' ]]; then 
+      (( row++))
+      col=0; 
+      continue; 
+    fi
+    [[ "$current_character" == "$character" ]] && result+=( "$row,$col" )
+    ((col++))
+  done
+}
+
+parse_star_parts() {
+  parse_star upper_arm \*
+  parse_star left_arm /
+  parse_star lower_left_arm \!
+  parse_star lower_right_arm \&
+  parse_star right_arm \(
+  parse_star upper_left_circle @
+  parse_star lower_left_circle %
+  parse_star lower_circle o
+  parse_star lower_right_circle \#
+  parse_star upper_right_circle x
+}
+
+# Draw the various star parts with a slight delay
+draw_star() {
   sleep_time=0.03
-  color=$(from_hex 37D7D7)
-  canvas_draw m "$color" "${upper_arm[@]}"
+  color=$(hex_to_color_code 37D7D7)
+  draw m "$color" "${upper_arm[@]}"
   sleep $sleep_time
-  color=$(from_hex 188ED5)
-  canvas_draw m "$color" "${upper_left_circle[@]}"
+  color=$(hex_to_color_code 188ED5)
+  draw m "$color" "${upper_left_circle[@]}"
   sleep $sleep_time
-  color=$(from_hex 1CA8FC)
-  canvas_draw m "$color" "${left_arm[@]}"
+  color=$(hex_to_color_code 1CA8FC)
+  draw m "$color" "${left_arm[@]}"
   sleep $sleep_time
-  color=$(from_hex 0C3C89)
-  canvas_draw m "$color" "${lower_left_circle[@]}"
+  color=$(hex_to_color_code 0C3C89)
+  draw m "$color" "${lower_left_circle[@]}"
   sleep $sleep_time
-  color=$(from_hex F55B8C)
-  canvas_draw m "$color" "${lower_left_arm[@]}"
+  color=$(hex_to_color_code F55B8C)
+  draw m "$color" "${lower_left_arm[@]}"
   sleep $sleep_time
-  color=$(from_hex F54E2C)
-  canvas_draw m "$color" "${lower_circle[@]}"
+  color=$(hex_to_color_code F54E2C)
+  draw m "$color" "${lower_circle[@]}"
   sleep $sleep_time
-  color=$(from_hex FED33F)
-  canvas_draw m "$color" "${lower_right_arm[@]}"
+  color=$(hex_to_color_code FED33F)
+  draw m "$color" "${lower_right_arm[@]}"
   sleep $sleep_time
-  color=$(from_hex 42A722)
-  canvas_draw m "$color" "${lower_right_circle[@]}"
+  color=$(hex_to_color_code 42A722)
+  draw m "$color" "${lower_right_circle[@]}"
   sleep $sleep_time
-  color=$(from_hex 44CA46)
-  canvas_draw m "$color" "${right_arm[@]}"
+  color=$(hex_to_color_code 44CA46)
+  draw m "$color" "${right_arm[@]}"
   sleep $sleep_time
-  color=$(from_hex 1DAB3B)
-  canvas_draw m "$color" "${upper_right_circle[@]}"
+  color=$(hex_to_color_code 1DAB3B)
+  draw m "$color" "${upper_right_circle[@]}"
 }
 
-function draw_repeat() {
+# Repeatedly redraw the star
+animate_star() {
   while true; do
-    tput bold
     tput sgr0
-   
+    tput bold
     draw_star
 
     sleep 1
 
     tput sgr0
-
     tput dim
     draw_star
   done
 }
 
-coords_from_file() {
-  typeset -n result=$1
-  local file=$2
-  local character=$3
-  readarray -t file_lines < "$file"
-  local row=0
-  for line in "${file_lines[@]}"; do
-    for i in $(seq 1 ${#line}); do 
-      local current_character=${line:i-1:1}
-      if [[ -z $character ]]; then 
-        [[ "$current_character" == ' ' ]] && continue
-      else 
-        [[ "$current_character" != "$character" ]] && continue
-      fi 
-      result+=( "$row,$i" )
-    done
-    (( row++))
-  done
-}
-
+# Converts a given hex code to 256 color. Uses dark magic.
 # Taken from here: https://unix.stackexchange.com/a/269085
-from_hex(){
+hex_to_color_code(){
   hex=${1#"#"}
   r=$(printf '0x%0.2s' "$hex")
   g=$(printf '0x%0.2s' "${hex#??}")
@@ -139,7 +156,16 @@ from_hex(){
                        (b<75?0:(b-35)/40)     + 16 ))"
 }
 
-canvas_draw() {
+# Draw the given array in the terminal with respect to canvas position.
+#
+# Arguments: 
+#   $1 - The symbol that should be printed
+#   $2 - The color code to use, as 256 color code
+#   $@ - The array. Array elements must have the form 'x, y' where x denotes the row and y the column of the terminal.
+#
+# Example: 
+#   draw x 91 '1,1' '2,2' '3,3'
+draw() {
   local symbol=$1
   local color=$2
   shift 2
@@ -159,5 +185,26 @@ canvas_draw() {
   done
 }
 
-main "$@"
+on_exit() {
+  clear; tput cnorm;
+  trap - EXIT
+  exit
+}
 
+declare -a upper_arm
+declare -a left_arm
+declare -a lower_left_arm
+declare -a lower_right_arm
+declare -a right_arm
+declare -a upper_left_circle
+declare -a lower_left_circle
+declare -a lower_circle
+declare -a lower_right_circle
+declare -a upper_right_circle
+
+declare -i upper_border
+declare -i left_border
+
+trap on_exit EXIT
+
+main "$@"
