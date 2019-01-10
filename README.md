@@ -1,6 +1,6 @@
 <h1 align="center">Meisterstar</h1>
 
-<div style="text-align:center"><img src="screenshot.png" /></div>
+<div align="center"><img src="meisterstar.gif"/></div>
 <br>
 <p align="center">
 <a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/built-with-love.svg"></a>
