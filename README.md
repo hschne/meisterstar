@@ -8,7 +8,11 @@
 </p>
 
 
-<p align="center">Inspired by <a href="https://github.com/sergiolepore/ChristBASHTree">ChristBASHTree</a>. Requires Bash 4+</p>
+<p align="center">Inspired by <a href="https://github.com/sergiolepore/ChristBASHTree">ChristBASHTree</a></p>
+
+## Requirements 
+
+Meisterstar requires bash version 4 or higher, as well as a terminal emulator with 256-color support.  
 
 ## Usage
 
