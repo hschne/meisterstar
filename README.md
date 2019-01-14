@@ -8,7 +8,7 @@
 </p>
 
 
-<p align="center">Inspired by <a href="https://github.com/sergiolepore/ChristBASHTree">ChristBASHTree</a></p>
+<p align="center">Inspired by <a href="https://github.com/sergiolepore/ChristBASHTree">ChristBASHTree</a>. Requires Bash 4+</p>
 
 ## Usage
 
