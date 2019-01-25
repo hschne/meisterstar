@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+
+declare -a upper_arm
+declare -a left_arm
+declare -a lower_left_arm
+declare -a lower_right_arm
+declare -a right_arm
+declare -a upper_left_circle
+declare -a lower_left_circle
+declare -a lower_circle
+declare -a lower_right_circle
+declare -a upper_right_circle
+
+declare -i upper_border
+declare -i left_border
+
 main() {
   parse_star_parts
 
@@ -64,7 +79,7 @@ set_borders() {
 # Example: 
 #  parse_star out_array * 
 parse_star() {
-  typeset -n result=$1
+  local i=0
   local character=$2
   local star
   star=$(star)
@@ -77,7 +92,8 @@ parse_star() {
       col=0; 
       continue; 
     fi
-    [[ "$current_character" == "$character" ]] && result+=( "$row,$col" )
+    # Use 3.2 compatible way to modify array passed by name, see https://stackoverflow.com/a/28223807/2553104
+    [[ "$current_character" == "$character" ]] && read -r "${1}""[$i]" <<< "$row,$col" && ((i++))
     ((col++))
   done
 }
@@ -191,19 +207,6 @@ on_exit() {
   exit
 }
 
-declare -a upper_arm
-declare -a left_arm
-declare -a lower_left_arm
-declare -a lower_right_arm
-declare -a right_arm
-declare -a upper_left_circle
-declare -a lower_left_circle
-declare -a lower_circle
-declare -a lower_right_circle
-declare -a upper_right_circle
-
-declare -i upper_border
-declare -i left_border
 
 trap on_exit EXIT
 
